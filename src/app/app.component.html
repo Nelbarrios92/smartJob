@@ -1,0 +1,97 @@
+@if (countries) {
+<div class="container">
+  <button
+    (click)="add()"
+    mat-fab
+    color="primary"
+    aria-label="Example icon button with a add icon"
+  >
+    <mat-icon>add</mat-icon>
+  </button>
+  @for (country of countries; track country.cca3) {
+  <mat-card class="card">
+    <mat-card-header>
+      <mat-card-title>{{ country.name.common }}</mat-card-title>
+      <mat-card-subtitle>{{ country.name.official }}</mat-card-subtitle>
+    </mat-card-header>
+    <img
+      mat-card-image
+      [src]="country.flags.png"
+      [alt]="country.name.official"
+    />
+    <mat-card-content>
+      <div>
+        <strong>Capital:</strong>
+        {{ country.capital[0] }}
+      </div>
+      <div>
+        <strong>Area:</strong>
+        {{ country.area }}
+      </div>
+      <div>
+        <strong>Language:</strong>
+        @for (lang of country.languages | keyvalue; track lang.key){
+        {{ lang.value }}
+        }
+      </div>
+    </mat-card-content>
+    <mat-card-actions>
+      <button mat-button (click)="delete(country.cca3)">DELETE</button>
+      <button mat-button (click)="edit(country)">EDIT</button>
+    </mat-card-actions>
+  </mat-card>
+  }
+</div>
+} @else { No countries to show... }
+
+<ng-template #countryForm>
+  <form [formGroup]="form" (submit)="save()">
+    <h2>{{ selectCountry.cca3 ? "Edit country" : "New country" }}</h2>
+    <div>
+      <mat-form-field>
+        <mat-label>Name</mat-label>
+        <input matInput formControlName="name" />
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Capital</mat-label>
+        <input matInput formControlName="capital" />
+      </mat-form-field>
+    </div>
+    <div>
+      <mat-form-field>
+        <mat-label>Area</mat-label>
+        <input matInput type="number" min="0" formControlName="area" />
+      </mat-form-field>
+    </div>
+    <div>
+      <mat-form-field>
+        <mat-label>Flag</mat-label>
+        <input matInput type="url" formControlName="flag" />
+      </mat-form-field>
+    </div>
+    <mat-form-field>
+      <mat-label>Languages</mat-label>
+      <mat-chip-grid #chipGrid aria-label="Languages">
+        @for (lang of languages |keyvalue; track lang.key) {
+        <mat-chip-row (removed)="removeChip(lang)">
+          {{ lang.value }}
+          <button matChipRemove [attr.aria-label]="'remove ' + lang.value">
+            <mat-icon>cancel</mat-icon>
+          </button>
+        </mat-chip-row>
+        }
+        <input
+          placeholder="Languages..."
+          formControlName="language"
+          [matChipInputFor]="chipGrid"
+          [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+          (matChipInputTokenEnd)="addChip($event)"
+        />
+      </mat-chip-grid>
+    </mat-form-field>
+
+    <button mat-raised-button [disabled]="form.invalid" color="primary">
+      Save
+    </button>
+  </form>
+</ng-template>
